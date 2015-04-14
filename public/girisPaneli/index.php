@@ -1,3 +1,18 @@
+<?php
+  include_once("../../DB/baglanti.php");
+  $DB = Baglanti::Baglan("localhost","KullaniciVT","root","sifre");
+  session_start();
+  $kullaniciEmail = $_POST["inputEmail"];
+  $kullaniciSifre = $_POST["inputPassword"];
+
+  if(!empty($kullaniciEmail) && !empty($kullaniciSifre)){
+    $dbSorgu = $DB->query("SELECT * FROM uyeler WHERE mail = '".$kullaniciEmail."'"
+    and sifre = '".md5($kullaniciSifre)."'); // Admin sorgulatma icinde bir sorgu gerekiyor
+    if($dbSorgu){
+      // ana sayfaya yonlendirme islemi yapilacak
+    }
+  }
+?>
 
 <!DOCTYPE html>
 <html lang="tr">
@@ -32,15 +47,15 @@
 
     <div class="container">
 
-      <form class="form-signin">
+      <form class="form-signin" action="index.php" method="POST">
         <h2 class="form-signin-heading">Giriş Ekranı</h2>
         <label for="inputEmail" class="sr-only">Email</label>
-        <input type="email" id="inputEmail" class="form-control" placeholder="Email" required autofocus>
+        <input type="email" name="inputEmail" class="form-control" placeholder="Email" required autofocus>
         <label for="inputPassword" class="sr-only">Şifre</label>
-        <input type="password" id="inputPassword" class="form-control" placeholder="Şifre" required>
+        <input type="password" name="inputPassword" class="form-control" placeholder="Şifre" required>
         <div class="checkbox">
           <label>
-            <input type="checkbox" value="remember-me"> Hatırla
+            <input type="checkbox" value="beniHatirla"> Beni Hatırla
           </label>
         </div>
         <button class="btn btn-lg btn-primary btn-block" type="submit">Giriş</button>
