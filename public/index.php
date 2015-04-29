@@ -1,1 +1,3 @@
-site index
+<?php
+header('Location: ./girisPaneli/index.php');
+?>

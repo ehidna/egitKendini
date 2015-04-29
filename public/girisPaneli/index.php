@@ -1,28 +1,53 @@
 <?php
-  include_once("../../DB/baglanti.php");
-  $DB = Baglanti::Baglan("localhost","KullaniciVT","root","sifre");
+  include ('../../DB/pdox.class.php');
+  $config = array(
+		'user'		=> 'root',
+		'pass'		=> 'root',
+		'dbname'	=> 'egitkendini',
+		'host'		=> 'localhost',
+		'type'		=> 'mysql',
+		'charset'	=> 'utf8',
+		'prefix'	=> ''
+	);
+  $db = new PDOx($config);
   session_start();
+
   $kullaniciEmail = $_POST["inputEmail"];
   $kullaniciSifre = $_POST["inputPassword"];
-
   if(!empty($kullaniciEmail) && !empty($kullaniciSifre)){
-    $dbSorgu = $DB->query("SELECT * FROM uyeler WHERE mail = '".$kullaniciEmail."'"
-    and sifre = '".md5($kullaniciSifre)."'); // Admin sorgulatma icinde bir sorgu gerekiyor
-    if($dbSorgu){
-      // ana sayfaya yonlendirme islemi yapilacak
-    }
+    // $uyeVarmi = $db->query("SELECT * FROM uyeler
+    //   WHERE mail='$kullaniciEmail' AND sifre='$kullaniciSifre' ");
+     //echo $uyeVarmi["mail"];
+     // if(!empty($uyeVarmi))){
+     //   echo $kullaniciEmail;
+     //   echo $kullanidiSifre;
+     //   $dbSorgu = $db->from('uyeler')->getAll();
+     //   echo $dbSorgu;
+     // }
+     echo $kullaniciEmail;
   }
+  // $_SESSION["giris"] = md5( "kullanic_oturum_" . md5( $bilgi["sifre"] ) . "_ds785667f5e67w423yjgty" );
+  // $_SESSION["kadi"]  = $kadi;
+  // if( !empty($_SESSION["sifre"]) && !empty($_SESSION["email"]) ){
+  // }
+
+  //   if(!empty($dbSorgu)){
+  //     // ana sayfaya yonlendirme islemi yapilacak
+  //     echo ".$dbSorgu.";
+  //   }
+  // }else{
+  //   echo "olmadi";
+  // }
 ?>
 
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="icon" href="../../favicon.ico">
 
     <title>Eğit Kendini - Giriş</title>
 
@@ -34,7 +59,6 @@
 
     <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
     <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
-    <script src="js/ie-emulation-modes-warning.js"></script>
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -65,6 +89,5 @@
 
 
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-    <script src="js/ie10-viewport-bug-workaround.js"></script>
   </body>
 </html>
