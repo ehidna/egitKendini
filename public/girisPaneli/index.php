@@ -12,32 +12,29 @@
   $db = new PDOx($config);
   session_start();
 
+  if(!empty($_SESSION["success"]) && !empty($_SESSION["email"])){
+    echo '<script>alert("Oturumunuz acik!");history.back(-1);</script>';
+    header('Location: ../index.php');
+  }
+
   $kullaniciEmail = $_POST["inputEmail"];
   $kullaniciSifre = $_POST["inputPassword"];
   if(!empty($kullaniciEmail) && !empty($kullaniciSifre)){
-    // $uyeVarmi = $db->query("SELECT * FROM uyeler
-    //   WHERE mail='$kullaniciEmail' AND sifre='$kullaniciSifre' ");
-     //echo $uyeVarmi["mail"];
-     // if(!empty($uyeVarmi))){
-     //   echo $kullaniciEmail;
-     //   echo $kullanidiSifre;
-     //   $dbSorgu = $db->from('uyeler')->getAll();
-     //   echo $dbSorgu;
-     // }
-     echo $kullaniciEmail;
+     $uyeVarmi = $db->select('sifre')->from('uyeler')->where('mail', $kullaniciEmail)->getAll();
+     if($db->count() != 1){
+       echo '<script>alert("Kullanıcı bulunamadı!");history.back(-1);</script>';
+       exit;
+     }{
+       $sifredb = $uyeVarmi[0]->sifre;
+     }
+     if( md5($kullaniciSifre ) != $sifredb ){
+       echo '<script>alert("Yanlış şifre girdiniz!");history.back(-1);</script>';
+       exit;
+     }
+     $_SESSION["success"] = $sifredb;
+     $_SESSION["email"]  = $kullaniciEmail;
+     header("Location: ../index.php");
   }
-  // $_SESSION["giris"] = md5( "kullanic_oturum_" . md5( $bilgi["sifre"] ) . "_ds785667f5e67w423yjgty" );
-  // $_SESSION["kadi"]  = $kadi;
-  // if( !empty($_SESSION["sifre"]) && !empty($_SESSION["email"]) ){
-  // }
-
-  //   if(!empty($dbSorgu)){
-  //     // ana sayfaya yonlendirme islemi yapilacak
-  //     echo ".$dbSorgu.";
-  //   }
-  // }else{
-  //   echo "olmadi";
-  // }
 ?>
 
 <!DOCTYPE html>
