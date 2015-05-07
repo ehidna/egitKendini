@@ -13,28 +13,32 @@
   session_start();
 
   if(!empty($_SESSION["success"]) && !empty($_SESSION["email"])){
-    echo '<script>alert("Oturumunuz acik!");history.back(-1);</script>';
+  //  echo '<script>alert("Oturumunuz acik!");</script>';
     header('Location: ../index.php');
+    die();
+  }else{
+    $kullaniciEmail = $_POST["inputEmail"];
+    $kullaniciSifre = $_POST["inputPassword"];
+    if(!empty($kullaniciEmail) && !empty($kullaniciSifre)){
+       $uyeVarmi = $db->select('sifre')->from('uyeler')->where('mail', $kullaniciEmail)->getAll();
+       if($db->count() != 1){
+         echo '<script>alert("Kullanıcı bulunamadı!");history.back(-1);</script>';
+         die();
+       }else{
+         $sifredb = $uyeVarmi[0]->sifre;
+       }
+       if( md5($kullaniciSifre ) != $sifredb ){
+         echo '<script>alert("Yanlış şifre girdiniz!");history.back(-1);</script>';
+         die();
+       }else{
+         $_SESSION["success"] = $sifredb;
+         $_SESSION["email"]  = $kullaniciEmail;
+         header("Location: ../index.php");
+         die();
+       }
+    }
   }
 
-  $kullaniciEmail = $_POST["inputEmail"];
-  $kullaniciSifre = $_POST["inputPassword"];
-  if(!empty($kullaniciEmail) && !empty($kullaniciSifre)){
-     $uyeVarmi = $db->select('sifre')->from('uyeler')->where('mail', $kullaniciEmail)->getAll();
-     if($db->count() != 1){
-       echo '<script>alert("Kullanıcı bulunamadı!");history.back(-1);</script>';
-       exit;
-     }{
-       $sifredb = $uyeVarmi[0]->sifre;
-     }
-     if( md5($kullaniciSifre ) != $sifredb ){
-       echo '<script>alert("Yanlış şifre girdiniz!");history.back(-1);</script>';
-       exit;
-     }
-     $_SESSION["success"] = $sifredb;
-     $_SESSION["email"]  = $kullaniciEmail;
-     header("Location: ../index.php");
-  }
 ?>
 
 <!DOCTYPE html>
