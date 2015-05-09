@@ -9,36 +9,37 @@
 		'charset'	=> 'utf8',
 		'prefix'	=> ''
 	);
-  $db = new PDOx($config);
   session_start();
 
   if(!empty($_SESSION["success"]) && !empty($_SESSION["email"])){
-  //  echo '<script>alert("Oturumunuz acik!");</script>';
     header('Location: ../index.php');
     die();
   }else{
-    $kullaniciEmail = $_POST["inputEmail"];
-    $kullaniciSifre = $_POST["inputPassword"];
-    if(!empty($kullaniciEmail) && !empty($kullaniciSifre)){
-       $uyeVarmi = $db->select('sifre')->from('uyeler')->where('mail', $kullaniciEmail)->getAll();
-       if($db->count() != 1){
-         echo '<script>alert("Kullanıcı bulunamadı!");history.back(-1);</script>';
-         die();
-       }else{
-         $sifredb = $uyeVarmi[0]->sifre;
-       }
-       if( md5($kullaniciSifre ) != $sifredb ){
-         echo '<script>alert("Yanlış şifre girdiniz!");history.back(-1);</script>';
-         die();
-       }else{
-         $_SESSION["success"] = $sifredb;
-         $_SESSION["email"]  = $kullaniciEmail;
-         header("Location: ../index.php");
-         die();
-       }
+    try{
+      $db = new PDOx($config);
+      $kullaniciEmail = $_POST["inputEmail"];
+      $kullaniciSifre = $_POST["inputPassword"];
+
+      if(!empty($kullaniciEmail) && !empty($kullaniciSifre)){
+         $sorgu = $db->pdo->prepare("select sifre from uyeler where mail=? and sifre=?");
+         $sorgu->bindParam(1, $kullaniciEmail);
+         $sorgu->bindParam(2, md5(trim($kullaniciSifre)));
+         $sorgu->execute();
+         $sorguIcerik = $sorgu->fetch(PDO::FETCH_ASSOC);
+         if(empty($sorguIcerik)){
+           echo '<script>alert("Email veya sifre yanlis!");history.back(-1);</script>';
+           die();
+         }else{
+           $_SESSION["success"] = md5( "oturum" . md5( $sorguIcerik["sifre"] ) . "kontrol" );
+           $_SESSION["email"]  = $kullaniciEmail;
+           header("Location: ../index.php");
+           die();
+         }
+      }
+    }catch (PDOException $e) {
+      echo 'Connection failed: ' . $e->getMessage();
     }
   }
-
 ?>
 
 <!DOCTYPE html>
@@ -72,10 +73,10 @@
 
     <div class="container">
 
-      <form class="form-signin" action="index.php" method="POST">
+      <form class="form-signin" action="<?php echo $_SERVER['PHP_SELF']?>" method="POST">
         <h2 class="form-signin-heading">Giriş Ekranı</h2>
         <label for="inputEmail" class="sr-only">Email</label>
-        <input type="email" name="inputEmail" class="form-control" placeholder="Email" required autofocus>
+        <input type="email" name="inputEmail" class="form-control" placeholder="Email" required>
         <label for="inputPassword" class="sr-only">Şifre</label>
         <input type="password" name="inputPassword" class="form-control" placeholder="Şifre" required>
         <div class="checkbox">
@@ -84,6 +85,7 @@
           </label>
         </div>
         <button class="btn btn-lg btn-primary btn-block" type="submit">Giriş</button>
+        <a href="./register.php">Kayit ol </a>
       </form>
 
     </div> <!-- /container -->

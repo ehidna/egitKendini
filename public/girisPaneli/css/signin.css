@@ -1,6 +1,6 @@
 body {
   padding-top: 40px;
-  padding-bottom: 40px;
+  padding-bottom: 80px;
   background-color: #eee;
 }
 
@@ -28,13 +28,40 @@ body {
 .form-signin .form-control:focus {
   z-index: 2;
 }
+.stilOfSignAndRegister {
+  max-width: 330px;
+  padding: 25px;
+  margin: 0 auto;
+}
+.stilOfSignAndRegister .form-control{
+  position: relative;
+  height: auto;
+  -webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+          box-sizing: border-box;
+  padding: 10px;
+  font-size: 16px;
+}
+.stilOfSignAndRegister .form-control:focus {
+  z-index: 2;
+}
+.stilOfSignAndRegister{
+  margin-bottom: 0px;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
 .form-signin input[type="email"] {
-  margin-bottom: -1px;
+  margin-bottom: 0px;
   border-bottom-right-radius: 0;
   border-bottom-left-radius: 0;
 }
 .form-signin input[type="password"] {
-  margin-bottom: 10px;
+  margin-bottom: 0px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+.form-signin input[type="confirmEmail"] {
+  margin-bottom: 0px;
   border-top-left-radius: 0;
   border-top-right-radius: 0;
 }
