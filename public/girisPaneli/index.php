@@ -1,5 +1,5 @@
 <?php
-  include ('../../DB/pdox.class.php');
+  include_once ('../../DB/pdox.class.php');
   $config = array(
 		'user'		=> 'root',
 		'pass'		=> 'root',
