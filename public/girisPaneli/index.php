@@ -2,7 +2,7 @@
   include ('../../DB/pdox.class.php');
   $config = array(
 		'user'		=> 'root',
-		'pass'		=> 'root',
+		'pass'		=> '',
 		'dbname'	=> 'egitkendini',
 		'host'		=> 'localhost',
 		'type'		=> 'mysql',
