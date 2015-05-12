@@ -1,5 +1,5 @@
 <?php
-  include ('./oturumKontrol.php');
+  include '../DB/oturumKontrol.php';
   $uye = false;
   session_start();
   if($giris_yapilmis){

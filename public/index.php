@@ -1,5 +1,5 @@
 <?php
-  include ('./oturumKontrol.php');
+  include '../DB/oturumKontrol.php';
   if( $giris_yapilmis ){
       echo "ANA SAYFA";
   }else{

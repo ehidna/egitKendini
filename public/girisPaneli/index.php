@@ -1,5 +1,5 @@
 <?php
-  include_once ('../../DB/pdox.class.php');
+  include '../../DB/pdox.class.php';
   $config = array(
 		'user'		=> 'root',
 		'pass'		=> 'root',
@@ -20,7 +20,7 @@
       $kullaniciEmail = $_POST["inputEmail"];
       $kullaniciSifre = $_POST["inputPassword"];
 
-      if(!empty($kullaniciEmail) && !empty($kullaniciSifre)){
+      if( !empty($_POST) ){
          $sorgu = $db->pdo->prepare("select sifre from uyeler where mail=? and sifre=?");
          $sorgu->bindParam(1, $kullaniciEmail);
          $sorgu->bindParam(2, md5(trim($kullaniciSifre)));
@@ -79,11 +79,7 @@
         <input type="email" name="inputEmail" class="form-control" placeholder="Email" required>
         <label for="inputPassword" class="sr-only">Şifre</label>
         <input type="password" name="inputPassword" class="form-control" placeholder="Şifre" required>
-        <div class="checkbox">
-          <label>
-            <input type="checkbox" value="beniHatirla"> Beni Hatırla
-          </label>
-        </div>
+
         <button class="btn btn-lg btn-primary btn-block" type="submit">Giriş</button>
         <a href="./register.php">Kayit ol </a>
       </form>
