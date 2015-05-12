@@ -30,6 +30,7 @@
             }else{
               # giris yanlis. $uye'yi silelim
               $uye = false;
+              session_regenerate_id(true);
             }
         }
     }

@@ -17,8 +17,8 @@
     $inputSoyadi = $_POST["inputSoyadi"];
     $inputEmail = $_POST["inputEmail"];
     $confirmEmail = $_POST["confirmEmail"];
-    $inputSifre = md5($_POST["inputSifre"]);
-    $confirmSifre = md5($_POST["confirmSifre"]);
+    $inputSifre = md5(trim($_POST["inputSifre"]));
+    $confirmSifre = md5(trim($_POST["confirmSifre"]));
     $meslek = $_POST["meslek"];
     $dogumTarihi = $_POST["dogumTarihi"];
     $telNo = $_POST["telNo"];

@@ -13,6 +13,7 @@
       );
       session_destroy();
       $_SESSION = array();
+      session_regenerate_id(true);
     }
   }
    echo "<script type='text/javascript'> document.location = './girisPaneli/index.php'; </script>";

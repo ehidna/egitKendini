@@ -18,18 +18,19 @@
     try{
       $db = new PDOx($config);
       $kullaniciEmail = $_POST["inputEmail"];
-      $kullaniciSifre = $_POST["inputPassword"];
+      $kullaniciSifre = md5(trim($_POST["inputPassword"]));
 
       if( !empty($_POST) ){
          $sorgu = $db->pdo->prepare("select sifre from uyeler where mail=? and sifre=?");
          $sorgu->bindParam(1, $kullaniciEmail);
-         $sorgu->bindParam(2, md5(trim($kullaniciSifre)));
+         $sorgu->bindParam(2, $kullaniciSifre);
          $sorgu->execute();
          $sorguIcerik = $sorgu->fetch(PDO::FETCH_ASSOC);
          if(empty($sorguIcerik)){
            echo '<script>alert("Email veya sifre yanlis!");history.back(-1);</script>';
            die();
          }else{
+           session_regenerate_id(true);
            $_SESSION["success"] = md5( "oturum" . md5( $sorguIcerik["sifre"] ) . "kontrol" );
            $_SESSION["email"]  = $kullaniciEmail;
            header("Location: ../index.php");
