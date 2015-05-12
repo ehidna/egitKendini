@@ -1,13 +1,50 @@
+<?php
+  include ('../../DB/pdox.class.php');
+  $config = array(
+		'user'		=> 'root',
+		'pass'		=> '',
+		'dbname'	=> 'egitkendini',
+		'host'		=> 'localhost',
+		'type'		=> 'mysql',
+		'charset'	=> 'utf8',
+		'prefix'	=> ''
+	);
+  $db = new PDOx($config);
+  session_start();
+
+  if(!empty($_SESSION["success"]) && !empty($_SESSION["email"])){
+    echo '<script>alert("Oturumunuz acik!");history.back(-1);</script>';
+    header('Location: ../index.php');
+  }
+
+  $kullaniciEmail = $_POST["inputEmail"];
+  $kullaniciSifre = $_POST["inputPassword"];
+  if(!empty($kullaniciEmail) && !empty($kullaniciSifre)){
+     $uyeVarmi = $db->select('sifre')->from('uyeler')->where('mail', $kullaniciEmail)->getAll();
+     if($db->count() != 1){
+       echo '<script>alert("Kullanıcı bulunamadı!");history.back(-1);</script>';
+       exit;
+     }{
+       $sifredb = $uyeVarmi[0]->sifre;
+     }
+     if( md5($kullaniciSifre ) != $sifredb ){
+       echo '<script>alert("Yanlış şifre girdiniz!");history.back(-1);</script>';
+       exit;
+     }
+     $_SESSION["success"] = $sifredb;
+     $_SESSION["email"]  = $kullaniciEmail;
+     header("Location: ../index.php");
+  }
+?>
 
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="icon" href="../../favicon.ico">
 
     <title>Eğit Kendini - Giriş</title>
 
@@ -19,7 +56,6 @@
 
     <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
     <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
-    <script src="js/ie-emulation-modes-warning.js"></script>
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -32,15 +68,15 @@
 
     <div class="container">
 
-      <form class="form-signin">
+      <form class="form-signin" action="index.php" method="POST">
         <h2 class="form-signin-heading">Giriş Ekranı</h2>
         <label for="inputEmail" class="sr-only">Email</label>
-        <input type="email" id="inputEmail" class="form-control" placeholder="Email" required autofocus>
+        <input type="email" name="inputEmail" class="form-control" placeholder="Email" required autofocus>
         <label for="inputPassword" class="sr-only">Şifre</label>
-        <input type="password" id="inputPassword" class="form-control" placeholder="Şifre" required>
+        <input type="password" name="inputPassword" class="form-control" placeholder="Şifre" required>
         <div class="checkbox">
           <label>
-            <input type="checkbox" value="remember-me"> Hatırla
+            <input type="checkbox" value="beniHatirla"> Beni Hatırla
           </label>
         </div>
         <button class="btn btn-lg btn-primary btn-block" type="submit">Giriş</button>
@@ -50,6 +86,5 @@
 
 
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-    <script src="js/ie10-viewport-bug-workaround.js"></script>
   </body>
 </html>
