@@ -2,7 +2,7 @@
   include '../../DB/pdox.class.php';
   $config = array(
 		'user'		=> 'root',
-		'pass'		=> '',
+		'pass'		=> 'root',
 		'dbname'	=> 'egitkendini',
 		'host'		=> 'localhost',
 		'type'		=> 'mysql',
@@ -11,9 +11,14 @@
 	);
   session_start();
 
-  if(!empty($_SESSION["success"]) && !empty($_SESSION["email"])){
-    header('Location: ../index.php');
-    die();
+  if(!empty($_SESSION["success"]) && !empty($_SESSION["email"]) && !empty($_SESSION["kullaniciAdi"]) && !empty($_SESSION["yetki"])){
+    if( $_SESSION["yetki"] != '3'){
+      header('Location: ../yoneticiPaneli/index.php');
+      die();
+    }else{
+      header('Location: ../kullaniciPaneli/index.php');
+      die();
+    }
   }else{
     try{
       $db = new PDOx($config);
@@ -21,7 +26,7 @@
       $kullaniciSifre = md5(trim($_POST["inputPassword"]));
 
       if( !empty($_POST) ){
-         $sorgu = $db->pdo->prepare("select sifre from uyeler where mail=? and sifre=?");
+         $sorgu = $db->pdo->prepare("select * from uyeler where mail=? and sifre=?");
          $sorgu->bindParam(1, $kullaniciEmail);
          $sorgu->bindParam(2, $kullaniciSifre);
          $sorgu->execute();
@@ -33,8 +38,15 @@
            session_regenerate_id(true);
            $_SESSION["success"] = md5( "oturum" . md5( $sorguIcerik["sifre"] ) . "kontrol" );
            $_SESSION["email"]  = $kullaniciEmail;
-           header("Location: ../index.php");
-           die();
+           $_SESSION["kullaniciAdi"]  = $sorguIcerik["ad"];
+           $_SESSION["yetki"]  = $sorguIcerik["yetki"];
+           if( $_SESSION["yetki"] != '3'){
+             header('Location: ../yoneticiPaneli/index.php');
+             die();
+           }else{
+             header('Location: ../kullaniciPaneli/index.php');
+             die();
+           }
          }
       }
     }catch (PDOException $e) {
@@ -82,7 +94,7 @@
         <input type="password" name="inputPassword" class="form-control" placeholder="Şifre" required>
 
         <button class="btn btn-lg btn-primary btn-block" type="submit">Giriş</button>
-        <a href="./register.php">Kayit ol </a>
+        <a href="../index.html">Ana sayfaya dön </a>
       </form>
 
     </div> <!-- /container -->

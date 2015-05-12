@@ -2,7 +2,7 @@
   include 'pdox.class.php';
   $config = array(
     'user'		=> 'root',
-    'pass'		=> '',
+    'pass'		=> 'root',
     'dbname'	=> 'egitkendini',
     'host'		=> 'localhost',
     'type'		=> 'mysql',
@@ -17,12 +17,12 @@
     $db = new PDOx($config);
 
     # kontrol ederek bilgileri dogrulayalim
-    if( !empty($_SESSION["success"]) && !empty($_SESSION["email"]) ){
+    if( !empty($_SESSION["success"]) && !empty($_SESSION["email"]) && !empty($_SESSION["kullaniciAdi"]) && !empty($_SESSION["yetki"])){
       $sorgu = $db->pdo->prepare("select sifre from uyeler where mail=?");
       $sorgu->bindParam(1, $_SESSION["email"]);
       $sorgu->execute();
       $uye = $sorgu->fetch(PDO::FETCH_ASSOC);
-      # kulanici bilgisini alalim
+      # kullanici bilgisini alalim
         if(!empty($uye)){
           # anahtar kontrol
             if( $_SESSION["success"]  ==  md5( "oturum" . md5( $uye["sifre"] ) . "kontrol" ) ){

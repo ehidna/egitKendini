@@ -1,3 +1,68 @@
+<?php
+  session_start();
+  include '../../DB/oturumKontrol.php';
+  if( !$giris_yapilmis || $_SESSION["yetki"] == '3' ){
+    header("Location: ../girisPaneli/index.php");
+    die();
+  }else{
+    include './pdox.class.php';
+    $config = array(
+     'user'		=> 'root',
+     'pass'		=> 'root',
+     'dbname'	=> 'egitkendini',
+     'host'		=> 'localhost',
+     'type'		=> 'mysql',
+     'charset'	=> 'utf8',
+     'prefix'	=> ''
+    );
+    try{
+      $db = new PDOx($config);
+      if(!empty($_POST)){ // verilerin bos olup olmadigini kontrol ediyoruz
+        $inputAdi = $_POST["inputAdi"];
+        $inputSoyadi = $_POST["inputSoyadi"];
+        $eskiSifre = md5(trim($_POST["eskiSifre"]));
+        $yeniSifre = md5(trim($_POST["yeniSifre"]));
+        $meslek = $_POST["meslek"];
+        $dogumTarihi = $_POST["dogumTarihi"];
+        $telNo = $_POST["telNo"];
+        $adres = $_POST["adres"];
+
+        $sifreSorgu = $db->from('uyeler')->where('mail', '=', $_SESSION['email'])->where('sifre','=' , $eskiSifre)->get();
+        $checkSifre=$db->count();
+        if( $checkSifre == 1 ){// sifre kontrolu
+            // Veri tabanina girme islemleri yapiliyor.
+            $sorgu = $db->pdo->prepare("UPDATE 'uyeler' SET ad=:ad1, soyad=:soyad1,
+              sifre=:sifre1, meslekID=:meslekID1, dTarihi=:dTarihi1, telNo=:telNo1, adres=:adres1");
+            $sorgu->bindParam(':ad1', $inputAdi);
+            $sorgu->bindParam(':soyad1', $inputSoyadi);
+            $sorgu->bindParam(':sifre1', $yeniSifre);
+            $sorgu->bindParam(':meslekID1', $meslek);
+            $sorgu->bindParam(':dTarihi1', $dogumTarihi);
+            $sorgu->bindParam(':telNo1', $telNo);
+            $sorgu->bindParam(':adres1', $adres);
+
+            if( $sorgu->execute() == false){  // veri tabanina yollarken hata olustu
+              echo '<script>alert("Hatali veri girdiniz!");history.back(-1);</script>';
+              die();
+            }else{
+              // oturumu aciyoruz
+              $_SESSION["success"] = md5( "oturum" . md5($yeniSifre) . "kontrol" );
+              $_SESSION["kullaniciAdi"]  = $inputAdi;
+              header("Location: ../girisPaneli/index.php");
+              die();
+            }
+        }else{
+          echo '<script>alert("Sifreyi yanlis girdiniz!");history.back(-1);</script>';
+          die();
+        }
+
+      }
+    }catch (PDOException $e) {
+    echo 'Baglanti saglanamadi: ' . $e->getMessage();
+    }
+  }
+?>
+<!-- ÜST PANEL YAN PANEL BURADAN ALTI TÜM SAYFALARDA AYNI OLACAK -->
 <!-- ÜST PANEL YAN PANEL BURADAN ALTI TÜM SAYFALARDA AYNI OLACAK -->
 <!DOCTYPE html>
 <html>
@@ -6,14 +71,14 @@
     <title>Eğit Kendini | Yönetim Paneli</title>
     <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
     <!-- Bootstrap 3.3.2 -->
-    <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />    
+    <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
     <!-- FontAwesome 4.3.0 -->
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
     <!-- Ionicons 2.0.0 -->
-    <link href="http://code.ionicframework.com/ionicons/2.0.0/css/ionicons.min.css" rel="stylesheet" type="text/css" />    
+    <link href="http://code.ionicframework.com/ionicons/2.0.0/css/ionicons.min.css" rel="stylesheet" type="text/css" />
     <!-- Theme style -->
     <link href="dist/css/AdminLTE.min.css" rel="stylesheet" type="text/css" />
-    <!-- AdminLTE Skins. Choose a skin from the css/skins 
+    <!-- AdminLTE Skins. Choose a skin from the css/skins
          folder instead of downloading all of them to reduce the load. -->
     <link href="dist/css/skins/_all-skins.min.css" rel="stylesheet" type="text/css" />
     <!-- iCheck -->
@@ -38,7 +103,7 @@
   </head>
   <body class="skin-blue">
     <div class="wrapper">
-      
+
       <header class="main-header">
         <!-- Logo -->
         <a href="index.html" class="logo"><b>Eğit</b>Kendini</a>
@@ -50,20 +115,20 @@
           </a>
           <div class="navbar-custom-menu">
             <ul class="nav navbar-nav">
-              
-              
+
+
               <!-- User Account: style can be found in dropdown.less -->
               <li class="dropdown user user-menu">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                   <img src="dist/img/user2-160x160.jpg" class="user-image" alt="User Image"/>
-                  <span class="hidden-xs">kullanıcı Adı1</span><!-- AD SOYAD VERİTABANINDAN GETİR-->
+                  <span class="hidden-xs"><?=$_SESSION["kullaniciAdi"] ?></span><!-- AD SOYAD VERİTABANINDAN GETİR-->
                 </a>
                 <ul class="dropdown-menu">
                   <!-- User image -->
                   <li class="user-header">
                     <img src="dist/img/user2-160x160.jpg" class="img-circle" alt="User Image" />
                     <p>
-                      kullanıcı adı1 - Meslek
+                      <?=$_SESSION["kullaniciAdi"] ?> - Meslek
                       <small>kayıt tarihi</small>
 					  <!-- TERİTABANINDAN TÜM KULLANICI BİLGİLERİNİ ÇEK AD SOYAD MESLEK KAYIT TAR. -->
                     </p>
@@ -73,7 +138,7 @@
                     <div class="col-xs-4 text-center">
                       <a href="derslerListe.php.php">Dersler</a>
                     </div>
-                    
+
                   </li>
                   <!-- Menu Footer-->
                   <li class="user-footer">
@@ -100,12 +165,12 @@
               <img src="dist/img/user2-160x160.jpg" class="img-circle" alt="User Image" />
             </div>
             <div class="pull-left info">
-              <p>kullanıcı Adı1</p><!-- VERITABANINDAN AD SOYAD GETİR -->
+              <p><?=$_SESSION["kullaniciAdi"] ?></p><!-- VERITABANINDAN AD SOYAD GETİR -->
 
-              <a href="#"><i class="fa fa-circle text-success"></i> Açık  <i class="fa fa-circle text-danger"></i> kapalı</a><!-- BURADA SESSION KONTROLU YAPILACAK -->
+              <a href="#"><i class="fa fa-circle text-success"></i> Açık </a><!-- BURADA SESSION KONTROLU YAPILACAK -->
             </div>
           </div>
-          
+
           <!-- sidebar menu: : style can be found in sidebar.less -->
           <ul class="sidebar-menu">
             <li class="header">YÖNETİM PANELİ</li>
@@ -117,10 +182,10 @@
                 <li class="active"><a href="index.php"><i class="fa fa-circle-o"></i>Yönetici Anasayfa</a></li>
               </ul>
             </li>
-			
+
 			<li class="treeview">
               <a href="#">
-                <i class="fa fa-files-o""></i> <span>Dersler</span>
+                <i class="fa fa-files-o"></i> <span>Dersler</span>
                 <i class="fa fa-angle-left pull-right"></i>
               </a>
               <ul class="treeview-menu">
@@ -130,7 +195,7 @@
                   <ul class="treeview-menu">
                     <li><a href="dersKonuAnlatimi.php"><i class="fa fa-circle-o"></i> Konu Anlatımı</a></li><!-- DERSİN KONU ANLATIMINA YÖNLENDİR GETİR-->
 					<li><a href="dersSinav.php"><i class="fa fa-circle-o"></i> Sınav</a></li><!-- DERSİN SINAVINA YÖNLENDİR GETİR-->
-                    
+
                   </ul>
                 </li>
 				 <li>
@@ -138,13 +203,13 @@
                   <ul class="treeview-menu">
                     <li><a href="dersKonuAnlatimi.php"><i class="fa fa-circle-o"></i> Konu Anlatımı</a></li>
 					<li><a href="dersSinav.php"><i class="fa fa-circle-o"></i> Sınav</a></li>
-                    
+
                   </ul>
                 </li>
-                
+
               </ul>
             </li>
-			
+
             <li>
               <a href="kullanicilar.php">
                 <i class="fa fa-th"></i> <span>Kullanıcıları Düzenle</span> <!-- YÖNETİCİYE ÖZEL BURADAKİ SAYFADA KULLANICI LİSTELE-->
@@ -161,26 +226,25 @@
                 <li><a href="istatistiklerKullanici.php"><i class="fa fa-circle-o"></i> Ders İstatistikleri</a></li>
               </ul>
             </li>
-            
+
             <li><a href="siteHakkinda.html"><i class="fa fa-book"></i> Site Hakkında</a></li><!-- STATIK HTML SAYFASINA YÖNLENDIR-->
-            
+
           </ul>
         </section>
         <!-- /.sidebar -->
       </aside>
 
 
-	  
+
 	  <!-- ÜST PANEL YAN PANEL BURADAN ÜSTÜ TÜM SAYFALARDA AYNI OLACAK -->
-	  
-	  
+
+
       <!-- Content Wrapper. Contains page content -->
       <div class="content-wrapper">
         <!-- Content Header (Page header) -->
         <section class="content-header">
           <h1>
-            Boxed Layout
-            <small>Blank example to the boxed layout</small>
+            Kullanıcı Paneli
           </h1>
           <ol class="breadcrumb">
             <li><a href="#"><i class="fa fa-dashboard"></i> Anasayfa</a></li>
@@ -189,25 +253,190 @@
 
         <!-- Main content -->
         <section class="content">
-          <div class="callout callout-info">
-            <h4>Tip!</h4>
-            <p>Add the layout-boxed class to the body tag to get this layout. The boxed layout is helpful when working on large screens because it prevents the site from stretching very wide.</p>
-          </div>
+
           <!-- Default box -->
           <div class="box">
             <div class="box-header with-border">
-              <h3 class="box-title">Title</h3>
+              <h3 class="box-title">Profil Düzenle</h3>
               <div class="box-tools pull-right">
                 <button class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse"><i class="fa fa-minus"></i></button>
                 <button class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove"><i class="fa fa-times"></i></button>
               </div>
             </div>
             <div class="box-body">
-              Start creating your amazing application!
+
+
+
+
+
+
+
+
+<form id="guncelle" name="guncelle" method="post" action="<?php echo $_SERVER['PHP_SELF']?>">
+  <table class="table table-striped" >
+    <tbody>
+      <tr>
+        <td width="160"><div>
+          <p>foto burada </p>
+          <p>
+            <input type="button" name="button" id="button" value="Foto Upload">
+          </p>
+        </div>
+          <div>
+            <div></div>
+            <div>
+              <div> </div>
+            </div>
+          </div>
+          <div> </div>
+          <div> </div>
+          <div>
+            <div> </div>
+          </div>
+          <h2>AD SOYAD          </h2></td>
+        <td width="400">
+          <div>
+            <div>
+              <div>
+                <label>Ad:</label>
+                <div>
+                  <input type="text" name="inputAdi" >
+                </div>
+              </div>
+            </div>
+            <div>
+              <div>
+                <label>Soyad:</label>
+                <div>
+                  <input type="text" name="inputSoyadi" >
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div>
+                <label>Meslek:</label>
+                <div>
+                  <SELECT  name="meslek">
+                    <OPTION selected value=0>Mesleğinizi Seçin</OPTION>
+                    <OPTION value=1>Çalışmıyorum</OPTION>
+                    <OPTION value=2>Akademisyen, Öğretmen</OPTION>
+                    <OPTION value=3>Avukat</OPTION>
+                    <OPTION value=4>Bankacı</OPTION>
+                    <OPTION value=5>Bilgisayar, Internet</OPTION>
+                    <OPTION value=6>Danışman</OPTION>
+                    <OPTION value=7>Doktor</OPTION>
+                    <OPTION value=8>Emekli</OPTION>
+                    <OPTION value=9>Ev Hanımı</OPTION>
+                    <OPTION value=10>Finasman, Muhasebe</OPTION>
+                    <OPTION value=11>Fotoğrafçı</OPTION>
+                    <OPTION value=12>Gazeteci</OPTION>
+                    <OPTION value=13>Grafiker</OPTION>
+                    <OPTION value=14>Manken,Fotomodel</OPTION>
+                    <OPTION value=15>Memur</OPTION>
+                    <OPTION value=16>Mühendis</OPTION>
+                    <OPTION value=17>Öğrenci</OPTION>
+                    <OPTION value=18>Politikacı</OPTION>
+                    <OPTION value=19>Psikolog</OPTION>
+                    <OPTION value=20>Reklamcı</OPTION>
+                    <OPTION value=21>Sanatçı</OPTION>
+                    <OPTION value=22>Satış, Pazarlama</OPTION>
+                    <OPTION value=23>Serbest Meslek, İş Sahibi</OPTION>
+                    <OPTION value=24>Sporcu</OPTION>
+                    <OPTION value=25>Teknik Eleman</OPTION>
+                    <OPTION value=26>Üst Düzey Yönetici</OPTION>
+                    <OPTION value=27>Diğer</OPTION>
+                  </SELECT>                </div>
+              </div>
+            </div>
+            <div>
+              <div>
+                <label>Adres:</label>
+                <div>
+                  <textarea style="resize:none" name="adres" wrap="soft" placeholder="Adres" ></textarea>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div>
+                <label>Telefon:</label>
+                <div>
+                  <input type="tel" name="telNo" id="telId" placeholder="(536) 555-1212"  required>
+                  <script>
+                    document.getElementById("telId").onkeypress = function(e){
+                      var keycodes = new Array(0,48,49,50,51,52,53,54,55,56,57);
+                      var was = false;
+                      for(x in keycodes){
+                        if(keycodes[x] == e.charCode){
+                          was = true;
+                          break;
+                        }else{
+                          was = false;
+                        };
+                      };
+                      var val = this.value;
+                      if(was === true){
+                        switch(val.length){
+                          case 3:
+                            if(e.charCode !== 0){
+                              this.value += "-";
+                            }
+                            break;
+                          case 7:
+                            if(e.charCode !== 0){
+                              this.value += "-";
+                            }
+                            break;
+                          default:
+                            if(val.length > 11 && e.charCode !== 0){return false;};
+                            break;
+                        };
+                            val += e.charCode;
+                      }else{
+                        return false;
+                      };
+                    };
+                  </script>                </div>
+              </div>
+            </div>
+            <div>
+              <div>
+                <label>Eski sifre:</label>
+                <div>
+				  <input type="password" name="eskiSifre" >
+                </div>
+              </div>
+            </div>
+            <div>
+              <div>
+                <label>Yeni sifre:</label>
+                <div>
+				  <input type="password" name="yeniSifre" >
+                </div>
+              </div>
+            </div>
+            <div>
+              <div>
+                <label>Doğum Tarihi:</label>
+                <div>
+                  <input type="date" name="dogumTarihi" >
+                </div>
+              </div>
+            </div>
+        </div></td>
+      </tr>
+      <tr>
+        <td></td>
+        <td><input type="submit" name="submit" id="submit" value="Kaydet"></td>
+      </tr>
+    </tbody>
+  </table>
+  <p></p>
+</form>
+
+
             </div><!-- /.box-body -->
-            <div class="box-footer">
-              Footer
-            </div><!-- /.box-footer-->
+
           </div><!-- /.box -->
 
         </section><!-- /.content -->
@@ -216,11 +445,12 @@
 	  <!-- FOOTER KISMI BURADAN ALTI TÜM SAYFALARDA SABİT OLACAK -->
       <footer class="main-footer">
         <div class="pull-right hidden-xs">
-          <b>Version</b> 2.0
+          <b>Sürüm</b> 0.0.0.1
         </div>
-        <strong>Copyright &copy; 2014-2015 <a href="http://almsaeedstudio.com">Almsaeed Studio</a>.</strong> All rights reserved.
+        <strong>Eğit Kendini</strong> Copyright &copy; 2015
       </footer>
     </div><!-- ./wrapper -->
+
     <!-- jQuery 2.1.3 -->
     <script src="plugins/jQuery/jQuery-2.1.3.min.js"></script>
     <!-- jQuery UI 1.11.2 -->
@@ -230,7 +460,7 @@
       $.widget.bridge('uibutton', $.ui.button);
     </script>
     <!-- Bootstrap 3.3.2 JS -->
-    <script src="bootstrap/js/bootstrap.min.js" type="text/javascript"></script>    
+    <script src="bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
     <!-- Morris.js charts -->
     <script src="http://cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
     <script src="plugins/morris/morris.min.js" type="text/javascript"></script>

@@ -4,7 +4,7 @@
     include './pdox.class.php';
     $config = array(
      'user'		=> 'root',
-     'pass'		=> '',
+     'pass'		=> 'root',
      'dbname'	=> 'egitkendini',
      'host'		=> 'localhost',
      'type'		=> 'mysql',
@@ -23,19 +23,20 @@
     $dogumTarihi = $_POST["dogumTarihi"];
     $telNo = $_POST["telNo"];
     $adres = $_POST["adres"];
+    $yetki = '3';
     try{
       $db = new PDOx($config);
       if(!empty($_POST)){ // verilerin bos olup olmadigini kontrol ediyoruz
 
         if( $inputEmail == $confirmEmail  && !empty($inputEmail) ){// email kontrolu
-          $emailSorgu = $db->select('mail')->from('uyeler')->where('mail','=' , $inputEmail)->get();
+          $emailSorgu = $db->from('uyeler')->where('mail','=' , $inputEmail)->get();
           $checkEmail=$db->count();
           if( $checkEmail != 1 ){// email onceden kullanilmismi kontrolu
             if( $inputSifre == $confirmSifre  && !empty($inputSifre) ){// sifre kontrolu
                 // Veri tabanina girme islemleri yapiliyor.
                 $sorgu = $db->pdo->prepare("INSERT INTO uyeler (ad, soyad, mail,
-                      sifre, meslekID, dTarihi, telNo, adres)
-                      VALUES(:ad, :soyad, :mail, :sifre, :meslekID, :dTarihi, :telNo, :adres)");
+                      sifre, meslekID, dTarihi, telNo, adres, yetki)
+                      VALUES(:ad, :soyad, :mail, :sifre, :meslekID, :dTarihi, :telNo, :adres, :yetki)");
                 $sorgu->bindParam(':ad', $inputAdi);
                 $sorgu->bindParam(':soyad', $inputSoyadi);
                 $sorgu->bindParam(':mail', $inputEmail);
@@ -44,6 +45,8 @@
                 $sorgu->bindParam(':dTarihi', $dogumTarihi);
                 $sorgu->bindParam(':telNo', $telNo);
                 $sorgu->bindParam(':adres', $adres);
+                $sorgu->bindParam(':yetki', $yetki);
+
 
                 if( $sorgu->execute() == false){  // veri tabanina yollarken hata olustu
                   echo '<script>alert("Hatali veri girdiniz!");history.back(-1);</script>';
@@ -52,6 +55,8 @@
                   // oturumu aciyoruz
                   $_SESSION["success"] = md5( "oturum" . md5($inputSifre) . "kontrol" );
                   $_SESSION["email"]  = $inputEmail;
+                  $_SESSION["kullaniciAdi"]  = $emailSorgu["ad"];
+                  $_SESSION["yetki"]  = $emailSorgu["yetki"];
                   header("Location: ./index.php");
                   die();
                 }

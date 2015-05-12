@@ -1,3 +1,11 @@
+<?php
+  session_start();
+  include '../../DB/oturumKontrol.php';
+  if( !$giris_yapilmis || $_SESSION["yetki"] == '3' ){
+    header("Location: ../girisPaneli/index.php");
+    die();
+  }
+?>
 <!DOCTYPE html>
 <html>
   <head>
@@ -5,14 +13,14 @@
     <title>Eğit Kendini | Yönetim Paneli</title>
     <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
     <!-- Bootstrap 3.3.2 -->
-    <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />    
+    <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
     <!-- FontAwesome 4.3.0 -->
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
     <!-- Ionicons 2.0.0 -->
-    <link href="http://code.ionicframework.com/ionicons/2.0.0/css/ionicons.min.css" rel="stylesheet" type="text/css" />    
+    <link href="http://code.ionicframework.com/ionicons/2.0.0/css/ionicons.min.css" rel="stylesheet" type="text/css" />
     <!-- Theme style -->
     <link href="dist/css/AdminLTE.min.css" rel="stylesheet" type="text/css" />
-    <!-- AdminLTE Skins. Choose a skin from the css/skins 
+    <!-- AdminLTE Skins. Choose a skin from the css/skins
          folder instead of downloading all of them to reduce the load. -->
     <link href="dist/css/skins/_all-skins.min.css" rel="stylesheet" type="text/css" />
     <!-- iCheck -->
@@ -37,10 +45,10 @@
   </head>
   <body class="skin-blue">
     <div class="wrapper">
-      
+
       <header class="main-header">
         <!-- Logo -->
-        <a href="index.html" class="logo"><b>Eğit</b>Kendini</a>
+        <a  class="logo"><b>Eğit</b>Kendini</a>
         <!-- Header Navbar: style can be found in header.less -->
         <nav class="navbar navbar-static-top" role="navigation">
           <!-- Sidebar toggle button-->
@@ -49,20 +57,20 @@
           </a>
           <div class="navbar-custom-menu">
             <ul class="nav navbar-nav">
-              
-              
+
+
               <!-- User Account: style can be found in dropdown.less -->
               <li class="dropdown user user-menu">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                   <img src="dist/img/user2-160x160.jpg" class="user-image" alt="User Image"/>
-                  <span class="hidden-xs">kullanıcı Adı1</span><!-- AD SOYAD VERİTABANINDAN GETİR-->
+                  <span class="hidden-xs"><?=$_SESSION["kullaniciAdi"] ?></span><!-- AD SOYAD VERİTABANINDAN GETİR-->
                 </a>
                 <ul class="dropdown-menu">
                   <!-- User image -->
                   <li class="user-header">
                     <img src="dist/img/user2-160x160.jpg" class="img-circle" alt="User Image" />
                     <p>
-                      kullanıcı adı1 - Meslek
+                      <?=$_SESSION["kullaniciAdi"] ?> - Meslek
                       <small>kayıt tarihi</small>
 					  <!-- TERİTABANINDAN TÜM KULLANICI BİLGİLERİNİ ÇEK AD SOYAD MESLEK KAYIT TAR. -->
                     </p>
@@ -70,9 +78,9 @@
                   <!-- Menu Body -->
                   <li class="user-body">
                     <div class="col-xs-4 text-center">
-                      <a href="derslerListe.php.php">Dersler</a>
+                      <a href="derslerListe.php">Dersler</a>
                     </div>
-                    
+
                   </li>
                   <!-- Menu Footer-->
                   <li class="user-footer">
@@ -80,7 +88,7 @@
                       <a href="profilSayfasi.php" class="btn btn-default btn-flat">Profil</a>
                     </div>
                     <div class="pull-right">
-                      <a href="#" class="btn btn-default btn-flat">Çıkış Yap</a> <!-- SESSION ÖLDÜR İŞLEMİ-->
+                      <a href="../logout.php" class="btn btn-default btn-flat">Çıkış Yap</a> <!-- SESSION ÖLDÜR İŞLEMİ-->
                     </div>
                   </li>
                 </ul>
@@ -99,12 +107,12 @@
               <img src="dist/img/user2-160x160.jpg" class="img-circle" alt="User Image" />
             </div>
             <div class="pull-left info">
-              <p>kullanıcı Adı1</p><!-- VERITABANINDAN AD SOYAD GETİR -->
+              <p><?=$_SESSION["kullaniciAdi"] ?></p><!-- VERITABANINDAN AD SOYAD GETİR -->
 
-              <a href="#"><i class="fa fa-circle text-success"></i> Açık  <i class="fa fa-circle text-danger"></i> kapalı</a><!-- BURADA SESSION KONTROLU YAPILACAK -->
+              <a href="#"><i class="fa fa-circle text-success"></i> Açık </a><!-- BURADA SESSION KONTROLU YAPILACAK -->
             </div>
           </div>
-          
+
           <!-- sidebar menu: : style can be found in sidebar.less -->
           <ul class="sidebar-menu">
             <li class="header">YÖNETİM PANELİ</li>
@@ -116,10 +124,10 @@
                 <li class="active"><a href="index.php"><i class="fa fa-circle-o"></i>Yönetici Anasayfa</a></li>
               </ul>
             </li>
-			
+
 			<li class="treeview">
               <a href="#">
-                <i class="fa fa-files-o""></i> <span>Dersler</span>
+                <i class="fa fa-files-o"></i> <span>Dersler</span>
                 <i class="fa fa-angle-left pull-right"></i>
               </a>
               <ul class="treeview-menu">
@@ -129,7 +137,7 @@
                   <ul class="treeview-menu">
                     <li><a href="dersKonuAnlatimi.php"><i class="fa fa-circle-o"></i> Konu Anlatımı</a></li><!-- DERSİN KONU ANLATIMINA YÖNLENDİR GETİR-->
 					<li><a href="dersSinav.php"><i class="fa fa-circle-o"></i> Sınav</a></li><!-- DERSİN SINAVINA YÖNLENDİR GETİR-->
-                    
+
                   </ul>
                 </li>
 				 <li>
@@ -137,13 +145,13 @@
                   <ul class="treeview-menu">
                     <li><a href="dersKonuAnlatimi.php"><i class="fa fa-circle-o"></i> Konu Anlatımı</a></li>
 					<li><a href="dersSinav.php"><i class="fa fa-circle-o"></i> Sınav</a></li>
-                    
+
                   </ul>
                 </li>
-                
+
               </ul>
             </li>
-			
+
             <li>
               <a href="kullanicilar.php">
                 <i class="fa fa-th"></i> <span>Kullanıcıları Düzenle</span> <!-- YÖNETİCİYE ÖZEL BURADAKİ SAYFADA KULLANICI LİSTELE-->
@@ -160,9 +168,9 @@
                 <li><a href="istatistiklerKullanici.php"><i class="fa fa-circle-o"></i> Ders İstatistikleri</a></li>
               </ul>
             </li>
-            
-            <li><a href="siteHakkinda.html"><i class="fa fa-book"></i> Site Hakkında</a></li><!-- STATIK HTML SAYFASINA YÖNLENDIR-->
-            
+
+            <li><a href="siteHakkinda.php"><i class="fa fa-book"></i> Site Hakkında</a></li><!-- STATIK HTML SAYFASINA YÖNLENDIR-->
+
           </ul>
         </section>
         <!-- /.sidebar -->
@@ -244,7 +252,7 @@
             <!-- Left col -->
             <section class="col-lg-7 connectedSortable">
               <!-- Custom tabs (Charts with tabs)-->
-              
+
               <!-- Chat box -->
               <div class="box box-success">
                 <div class="box-header">
@@ -287,13 +295,13 @@
                 </div>
               </div><!-- /.box (chat box) -->
 
-              
+
 
             </section><!-- /.Left col -->
             <!-- right col (We are only adding the ID to make the widgets sortable)-->
             <section class="col-lg-5 connectedSortable">
 
-             
+
               <!-- Calendar -->
               <div class="box box-solid bg-green-gradient">
                 <div class="box-header">
@@ -303,7 +311,7 @@
                   <div class="pull-right box-tools">
                     <!-- button with a dropdown -->
                     <div class="btn-group">
-                     
+
                     </div>
                     <button class="btn btn-success btn-sm" data-widget="collapse"><i class="fa fa-minus"></i></button>
                     <button class="btn btn-success btn-sm" data-widget="remove"><i class="fa fa-times"></i></button>
@@ -337,7 +345,7 @@
       $.widget.bridge('uibutton', $.ui.button);
     </script>
     <!-- Bootstrap 3.3.2 JS -->
-    <script src="bootstrap/js/bootstrap.min.js" type="text/javascript"></script>    
+    <script src="bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
     <!-- Morris.js charts -->
     <script src="http://cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
     <script src="plugins/morris/morris.min.js" type="text/javascript"></script>
